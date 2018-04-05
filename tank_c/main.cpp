@@ -38,8 +38,6 @@ int main()
 	//¿ªÊ¼ÓÎÏ·
 	playTank();
 
-
-
 	return 0;
 }
 
