@@ -7,3 +7,5 @@ tank_c/tank_c.vcxproj.user
 Debug/
 .vs/
 tank_c.VC.VC.opendb
+Release/
+tank_c/Release/
