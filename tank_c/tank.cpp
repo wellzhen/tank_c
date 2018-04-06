@@ -13,7 +13,7 @@ bool moveTank(int nDir, int index);
 
 void initNpcTank()
 {
-	for (int nNum = 0; nNum < 17; nNum++) {
+	for (int nNum = 0; nNum < 1; nNum++) {
 		TANK*  pTank = (TANK*)malloc(sizeof(TANK));
 		pTank->isNPC = true;
 		pTank->posX = 3 + nNum* 3;

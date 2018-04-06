@@ -25,7 +25,7 @@ void printChar(int posX, int posY, char* pszChar, WORD wArr)
 	printf(pszChar);
 }
 
-void initMapData()
+void initOuterWall()
 {
 	for (int row = 0; row < MAPHEIGHT; row++) {
 		for (int col = 0; col < MAPWIDTH; col++) {
@@ -37,7 +37,10 @@ void initMapData()
 			}
 		}
 	}
-
+}
+void initMapData()
+{
+	initOuterWall();
 	for (int col = 1; col < MAPWIDTH - 1; col++) {
 		g_nMap[4][col] = MAP_GRASS;
 		g_nMap[5][col] = MAP_GRASS;
@@ -72,6 +75,103 @@ void initMapData()
 
 }
 
+
+void showNeedStaticObj()
+{
+	int nDestPosX = MAPWIDTH + 2;
+	printChar(nDestPosX, 2,  "□ 空地", COLOR_WHITE); //空地
+	printChar(nDestPosX, 4,  "■ 石块", COLOR_GRAY);  //石块
+	printChar(nDestPosX, 6,  "■ 砖块", COLOR_RED_LIGHT); // 砖块
+	printChar(nDestPosX, 8,  "∷ 草地", COLOR_GREEN);   //草
+	printChar(nDestPosX, 10, "※ 雪地", COLOR_WHITE);   //雪
+	printChar(nDestPosX, 12, "↑ 树木", COLOR_GREEN_LIGHT); //树
+	printChar(nDestPosX, 14, "≈ 河流", COLOR_GRAY);   //河流
+
+	printChar(nDestPosX, 18, "Tip 左键编辑", COLOR_GRAY); 
+	printChar(nDestPosX, 20, "    双击删除", COLOR_GRAY);
+	printChar(nDestPosX, 22, "    右键游戏", COLOR_GRAY);  
+}
+
+void customMapData()
+{
+	initOuterWall();
+	int nColorBoxPosX = MAPWIDTH + 1; //同showNeedStaticObj()保持一致
+
+	int nBrushColorNum = 0; //鼠标的刷子颜色
+	int mousePosX = 0;
+	int mousePosY = 0;
+
+	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+	INPUT_RECORD stcRecord = { 0 };
+	DWORD dwRead;
+	SetConsoleMode(hStdin, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
+
+	while (1)
+	{
+		ReadConsoleInput(hStdin, &stcRecord, 1, &dwRead);
+		if (stcRecord.EventType == MOUSE_EVENT) {
+			MOUSE_EVENT_RECORD mer = stcRecord.Event.MouseEvent;
+			switch (mer.dwEventFlags)
+			{
+			case 0:
+				if (mer.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
+					//左键单击
+					if (mousePosX >= nColorBoxPosX) { //点击了颜料区域
+						switch (mousePosY) {
+						case 2:
+							nBrushColorNum =  MAP_SPACE;
+							break;
+						case 4:
+							nBrushColorNum = MAP_STONE;
+							break;
+						case 6:
+							nBrushColorNum = MAP_BRICK;
+							break;
+						case 8:
+							nBrushColorNum = MAP_GRASS;
+							break;
+						case 10:
+							nBrushColorNum = MAP_ICE;
+							break;
+						case 12:
+							nBrushColorNum = MAP_TREE;
+							break;
+						case 14:
+							nBrushColorNum = MAP_RIVER;
+							break;
+						default:
+							//
+							break;
+						}
+					}
+					else if (mousePosX > 0 && mousePosX < MAPWIDTH - 1 && mousePosY > 0 && mousePosY < MAPHEIGHT - 1) {
+						g_nMap[mousePosY][mousePosX] = nBrushColorNum;
+						reDrawMapPoint(mousePosY, mousePosX);
+					}
+				}
+				else if (mer.dwButtonState == RIGHTMOST_BUTTON_PRESSED)
+				{
+					//右键单击: 结束编辑编辑
+					return;
+				}
+				break;
+			case DOUBLE_CLICK:
+				//双击 
+				if (mousePosX > 0 && mousePosX < MAPWIDTH - 1 && mousePosY > 0 && mousePosY < MAPHEIGHT - 1) {
+					g_nMap[mousePosY][mousePosX] = 0;
+					reDrawMapPoint(mousePosY, mousePosX);
+				}
+				break;
+			case MOUSE_MOVED:
+				mousePosX = mer.dwMousePosition.X /2;
+				mousePosY = mer.dwMousePosition.Y;
+				break;
+			}
+		}
+	}
+
+}
+
 //参数（posX, posY）
 void reDrawMapPoint(int row, int col)
 {
@@ -100,6 +200,7 @@ void reDrawMapPoint(int row, int col)
 		printf("未定义的地图物体\n");
 	}
 }
+
 
 void drawMap()
 {

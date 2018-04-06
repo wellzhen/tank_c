@@ -7,9 +7,6 @@
 #pragma comment(lib, "User32.lib")
 #pragma comment(lib, "WINMM.LIB")
 
-
-
-
 int g_TankShape[4][3][3] = {
 	{//up = 0
 		{ 0, 1, 0 },
@@ -36,10 +33,29 @@ int main()
 {
 	initConsoleWindow();
 	initInputShift();
-	//菜单选项......
+	/************  显示欢迎界面***************/
+	showWelcomeWall();
+	showWelcomeWords();
+	Sleep(1000);
+	/*******显示 菜单 选项 并********/
+	system("cls");
+	showWelcomeWall();
+	showMenu();
+	int optionNum = getMenuChoice();
 
-	//开始游戏
-	playTank();
+	switch (optionNum) {
+	case  1:
+		playTank(1);//开始游戏
+		break;
+	case 2:
+		playTank(2); //自定义游戏
+		break;
+	case 3: 
+		playTank(3); //读档游戏
+		break;
+	case 4:
+		return 0; //退出
+	}
 
 	return 0;
 }

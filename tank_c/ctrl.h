@@ -1,7 +1,7 @@
 #pragma once
 
 //开始玩坦克游戏
-void playTank();
+void playTank(int gameType);
 
 //方向键转方向宏
 int dirKey2DirNum(char keyWord);
@@ -13,3 +13,12 @@ void shootBullet(int nTankIndex);
 
 //初始化输入法
 void initInputShift();
+
+//显示欢迎墙
+void  showWelcomeWall();
+//欢迎语
+void  showWelcomeWords();
+//显示主页菜单
+void showMenu();
+//获取用户的菜单选项
+int getMenuChoice();
