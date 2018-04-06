@@ -9,34 +9,56 @@ extern  vector<TANK *>  g_vecTank;
 extern  vector<BULLET*> g_vecBullet;
 
 int dirKey2DirNum(char keyWord);
-
+void saveArchive();
+void readArchive();
+void clearGlobalData();
 
 void playTank(int gameType)
 {
 	system("cls");
-	//初始化地图
-	if (gameType == 1) {
+	//清理全局数据（push_back的数据）
+	clearGlobalData();
+
+	if (gameType == 1) { //经典游戏
 		initMapData();
 		drawMap();
+
+		//初始化玩家坦克: 默认一个
+		initTank();
+		drawTank(0, true);
+		//初始化NPC坦克
+		initNpcTank();
+		drawTank(1, true);
 	}
-	else if (gameType == 2) {
+	else if (gameType == 2) {//自定义地图
 		showNeedStaticObj();
 		initOuterWall();
 		drawMap();
 		customMapData();
+
+		//初始化玩家坦克: 默认一个
+		initTank();
+		drawTank(0, true);
+		//初始化NPC坦克
+		initNpcTank();
+		drawTank(1, true);
 	}
-	else if (gameType == 3) {
-		initMapData();
+	else if (gameType == 3) {//读档
+		readArchive();
 		drawMap();
-	}
+
+		//重新画一遍玩家坦克： 会自动更新g_pTankMap
+		for (unsigned int i = 0; i < g_vecTank.size(); i++) {
+			if ((!g_vecTank[i]->isNPC)&& g_vecTank[i]->isAlive) {
+				drawTank(i, true);
+			}
+			
+		}
+
+	} 
 
 
-	//初始化玩家坦克: 默认一个
-	initTank();
-	drawTank(0, true);
-	//初始化NPC坦克
-	initNpcTank();
-	drawTank(1, true);
+
 	//控制坦克
 	char chKey;
 	int  nDirNum;
@@ -166,6 +188,94 @@ int getMenuChoice()
 		else {
 			//menuNum = 0;
 			scanf_s("%d", &menuNum);
+		}
+	}
+}
+
+void saveArchive()
+{
+	FILE * pFile;
+	fopen_s(&pFile, "archive.db", "wb");
+	//一、地图g_nMap数据
+	fwrite(g_nMap, sizeof(int), MAPWIDTH* MAPHEIGHT, pFile);
+	//二、坦克
+	//坦克数量
+	int nTankSize = g_vecTank.size();
+	fwrite(&nTankSize, sizeof(int), 1, pFile);
+	//坦克数据
+	for (int i = 0; i < nTankSize; i++) {
+		fwrite(g_vecTank[i], sizeof(TANK), 1, pFile);
+	}
+	
+	//三、子弹
+	int nBulletSize = g_vecBullet.size();
+	fwrite(&nBulletSize, sizeof(int), 1, pFile);
+	for (int i = 0; i < nBulletSize; i++) {
+		fwrite(g_vecBullet[i], sizeof(BULLET), 1, pFile);
+	}
+	//五、受损植物地图
+	//数量
+	int nDamagedPlantSize = g_vecDamagedPlant.size();
+	fwrite(&nDamagedPlantSize, sizeof(int), 1, pFile);
+	//数据
+	for (int i = 0; i < nDamagedPlantSize; i++) {
+		fwrite(&g_vecDamagedPlant[i], sizeof(POS), 1, pFile);
+	}
+
+	fclose(pFile);
+}
+
+void readArchive()
+{
+
+	FILE * pFile;
+	fopen_s(&pFile, "archive.db", "rb");
+	//一、地图g_nMap数据
+	fread_s(g_nMap, sizeof(int)*MAPWIDTH*MAPHEIGHT, sizeof(int), MAPWIDTH*MAPHEIGHT, pFile);	//fwrite(g_nMap, sizeof(int), MAPWIDTH* MAPHEIGHT, pFile);
+	//二、坦克
+	//坦克数量
+	int nTankSize;
+	fread_s(&nTankSize, sizeof(int), sizeof(int), 1, pFile);//fwrite(&nTankSize, sizeof(int), 1, pFile);
+	//坦克数据
+	for (int i = 0; i < nTankSize; i++) {
+		TANK* pTank = (TANK*)malloc(sizeof(TANK));
+		fread_s(pTank, sizeof(TANK), sizeof(TANK), 1, pFile);  //fwrite(g_vecTank[i], sizeof(TANK), 1, pFile);
+		g_vecTank.push_back(pTank);
+		pTank = NULL;
+	}
+	
+	//三、子弹
+	int nBulletSize;
+	fread_s(&nBulletSize, sizeof(int), sizeof(int), 1, pFile);
+	for (int i = 0; i < nBulletSize; i++) {
+		BULLET* pBullet = (BULLET*)malloc(sizeof(BULLET));
+		fread_s(pBullet, sizeof(BULLET), sizeof(BULLET), 1, pFile);//fwrite(g_vecBullet[i], sizeof(BULLET), 1, pFile);
+		g_vecBullet.push_back(pBullet);
+		pBullet = NULL;
+	}
+	//五、受损植物地图
+	//数量
+	int nDamagedPlantSize;
+	fread_s(&nDamagedPlantSize, sizeof(int), sizeof(int), 1, pFile);//fwrite(&nDamagedPlantSize, sizeof(int), 1, pFile);
+	//数据
+	for (int i = 0; i < nDamagedPlantSize; i++) {
+		POS  damagedPlant;
+		fread_s(&damagedPlant, sizeof(POS), sizeof(POS), 1, pFile);//fwrite(&g_vecDamagedPlant[i], sizeof(POS), 1, pFile);
+		g_vecDamagedPlant.push_back(damagedPlant);
+	}
+	fclose(pFile);
+}
+
+void clearGlobalData()
+{
+	g_vecTank.clear();
+	g_vecBullet.clear();
+	g_vecDamagedPlant.clear();
+	for (int row = 0; row < MAPHEIGHT; row++) {
+		for (int col = 0; col < MAPWIDTH; col++) {
+			g_pTankMap[row][col] = 0;
+			g_pBulletMap[row][col] = 0;
+			g_nMap[row][col] = 0;
 		}
 	}
 }

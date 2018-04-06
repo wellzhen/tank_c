@@ -22,3 +22,9 @@ void  showWelcomeWords();
 void showMenu();
 //获取用户的菜单选项
 int getMenuChoice();
+//存档
+void saveArchive();
+//读档
+void readArchive();
+//清空全局变量
+void clearGlobalData();

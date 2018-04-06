@@ -229,10 +229,7 @@ void recoverDamagedPlant()
 
 }
 
-void saveArchive()
-{
-	//µØÍ¼g_nMapÊı¾İ
-}
+
 
 
 
