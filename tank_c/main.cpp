@@ -37,25 +37,29 @@ int main()
 	showWelcomeWall();
 	showWelcomeWords();
 	Sleep(1000);
-	/*******显示 菜单 选项 并********/
-	system("cls");
-	showWelcomeWall();
-	showMenu();
-	int optionNum = getMenuChoice();
 
-	switch (optionNum) {
-	case  1:
-		playTank(1);//开始游戏
-		break;
-	case 2:
-		playTank(2); //自定义游戏
-		break;
-	case 3: 
-		playTank(3); //读档游戏
-		break;
-	case 4:
-		return 0; //退出
+	while (1) {
+		/*菜单 选项*/
+		system("cls");
+		showWelcomeWall();
+		showMenu();
+		int optionNum = getMenuChoice();
+
+		switch (optionNum) {
+		case  1:
+			playTank(1);//开始游戏
+			break;
+		case 2:
+			playTank(2); //自定义游戏
+			break;
+		case 3: 
+			playTank(3); //读档游戏
+			break;
+		case 4:
+			return 0; //退出
+		}
 	}
+		
 
 	return 0;
 }

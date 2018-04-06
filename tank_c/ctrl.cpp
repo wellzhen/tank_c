@@ -29,8 +29,8 @@ void playTank(int gameType)
 		initMapData();
 		drawMap();
 	}
-	
-	
+
+
 	//初始化玩家坦克: 默认一个
 	initTank();
 	drawTank(0, true);
@@ -40,10 +40,22 @@ void playTank(int gameType)
 	//控制坦克
 	char chKey;
 	int  nDirNum;
+	bool hasPause = false;
 	while (1) {
 		if (_kbhit()) {
 			chKey = _getch();
-			if (chKey == 'j') {//发射炮弹
+			if (chKey == 27) {//ESC键
+				saveArchive();
+				return;
+			}
+			else if (chKey == 32) { //空格
+				hasPause = !hasPause; //取反
+				continue;
+			}
+			else if (hasPause) {
+				continue;
+			}
+			else if (chKey == 'j') {//发射炮弹
 				shootBullet(0);//index = 0
 			}
 			else if (chKey == 'w' || chKey == 'a' || chKey == 's' || chKey == 'd') { //移动按键
@@ -51,9 +63,13 @@ void playTank(int gameType)
 				moveTank(nDirNum, 0);//暂时第一辆坦克
 			}
 			else {
-				printf("错误的按键： %c\n", chKey);
+				printf("非控制键： %c %d %d\n", chKey, chKey, (int)chKey);
 			}
 		}
+		else if (hasPause) {
+			continue;
+		}
+		
 
 		
 		//Npc坦克自动运行
