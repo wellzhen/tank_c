@@ -3,6 +3,9 @@
 #include <Windows.h>
 #include "ctrl.h"
 #include "data.h"
+#include <mmsyscom.h>
+#pragma comment(lib, "User32.lib")
+#pragma comment(lib, "WINMM.LIB")
 
 
 
